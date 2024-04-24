@@ -4,11 +4,34 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
 
+const mongoose = require("mongoose");
+
+const URI = process.env.DB; 
+mongoose.connect(URI).catch((err) => console.log(err));
+
+mongoose.connection.on("error", (err) => {
+  console.log("Mongoose connection error: " + err);
+});
+
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
 
 const app = express();
+
+const helmet = require('helmet');
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      scriptSrc: ["'self'"]
+    }
+  },
+  xssFilter: true,
+
+}));
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
